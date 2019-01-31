@@ -94,8 +94,8 @@ $(function() {
     var data = getData();
     var layout = {
     	autosize: false,
-    	width: 1700,
-    	height: 1700,
+    	width: 1000,
+    	height: 1000,
     	l: 0,
     	r: 0,
     	b: 0,
