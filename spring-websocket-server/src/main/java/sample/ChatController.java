@@ -1,5 +1,7 @@
 package sample;
 
+import commands.StreamParser;
+import models.Result;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -22,25 +24,29 @@ public class ChatController
 {
     @MessageMapping("/chat/{topic}")
     @SendTo("/topic/messages")
-    public OutputMessage send(@DestinationVariable("topic") String topic,
+    public Result send(@DestinationVariable("topic") String topic,
 			      Message message) throws Exception
     {
+        Result result = new Result();
         try{
-            String mpiexec = "D:\\Programs\\MPI\\Bin\\mpiexec";
-            String command = mpiexec +  " Geometrica.exe";
+            Integer noProcs = 3;
+            String mpiexec = "D:\\Programs\\MPI\\Bin\\mpiexec ";
+            String command = mpiexec +  "-n " + noProcs + " Geometrica.exe " + noProcs;
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec("cmd /c " + command );
 
             // any error message?
             StreamGobbler errorGobbler = new
                     StreamGobbler(proc.getErrorStream(), "ERROR");
-
-            // any output?
-            StreamGobbler outputGobbler = new
-                    StreamGobbler(proc.getInputStream(), "OUTPUT");
-
-            outputGobbler.start();
             errorGobbler.start();
+
+            // parse output
+            StreamParser outputParser = new StreamParser(proc.getInputStream());
+            result = outputParser.parse();
+
+            System.out.println(result);
+
+
 
             int exitVal = proc.waitFor();
             System.out.println("Process exitValue: " + exitVal);
@@ -49,6 +55,7 @@ public class ChatController
         catch (Throwable t){
             t.printStackTrace();
         }
-	    return new OutputMessage(message.getFrom(), message.getText(), topic);
+        return result;
+//	    return new OutputMessage(message.getFrom(), message.getText(), topic);
     }
 }
