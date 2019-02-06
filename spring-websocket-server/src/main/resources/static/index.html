@@ -15,14 +15,10 @@
     <div class="row">
       <div class="col-md-12 space-bottom10">
         <form class="form-inline">
-          <div class="form-group">
-            <label for="from">Name?</label>
-            <input type="text" id="from" class="form-control"
-		   placeholder="enter your name...">
-          </div>
           <button id="connect"
 		  class="btn btn-default"
 		  type="submit">Connect</button>
+
           <button id="disconnect"
 		  class="btn btn-default"
 		  type="submit"
@@ -32,25 +28,22 @@
     </div>
     <div class="row space-bottom10">
       <form>
-	<div class="col-md-2">
-	  <select name="topic"
-		  id="topic"
-		  class="form-control">
-	    <option>Lifestyle</option>
-	    <option>Travel</option>
-	    <option>Career</option>
-	  </select>
+	<div class="col-md-4">
+        <input type="text"
+               id="noClimbers"
+               class="form-control"
+               placeholder="enter number of climbers ( >= 1) ...">
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-4">
 	  <input type="text"
-		 id="text"
+		 id="noProcs"
 		 class="form-control"
-		 placeholder="enter message ...">
+		 placeholder="enter number of processes ( >= 2 ) ...">
 	</div>
 	<div class="col-md-4">
           <button id="send"
 		  class="btn btn-default"
-		  type="submit">Send</button>
+		  type="submit">Start</button>
 	</div>
       </form>
     </div>

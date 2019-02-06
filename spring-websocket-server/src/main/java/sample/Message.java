@@ -14,8 +14,8 @@ public class Message
 
     public Message(String from,String text)
     {
-	this.from = from;
-	this.text = text;
+        this.from = from;
+        this.text = text;
     }
 
     public String getFrom()

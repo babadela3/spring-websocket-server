@@ -4,35 +4,64 @@ $(function() {
     var client;
 
     function showMessage(mesg) {
-        console.log(mesg);
+        var parClimbing = mesg['parClimbing'];
+        var seqClimbing = mesg['seqClimbing'];
+        var climbers = parClimbing['climbers'];
+        var climbersCount = Object.keys(climbers).length;
+        console.log('Parralel : ' + parClimbing['duration'] + ' at ' + parClimbing['bestPoint']['x'] + '\n');
+        console.log('Sequential : ' + seqClimbing['duration'] + ' at ' + seqClimbing['bestPoint']['x'] + '\n');
         var xx = [];
         var yy = [];
         var zz = [];
 
-        xx.push(Math.random() * 20);
-        yy.push(Math.random() * 20);
-        zz.push(Math.random() * 30000);
-        var data = [{
-        	x: xx,
-        	y: yy,
-        	z: zz,
-        	mode: 'markers',
-        	type: 'scatter3d',
-        	marker: {
-                color: 'rgb(255, 153, 0)',
-        	    size: 10
+//        for(let index = 1; index <= climbersCount; ++index){
+//            var history = climbers[index]['history'];
+//            console.log("Climber : " + index + " has " + history.length + " steps\n");
+//        }
+        var historyStep = 0;
+        var allDone = false;
+        while(allDone == false){
+            allDone = true;
+            console.log("History step " + historyStep + " \n");
+            for(let index = 1; index <= climbersCount; ++index){
+                var history = climbers[index]['history'];
+                var step = historyStep;
+                if(historyStep >= history.length){
+                    step = history.length - 1;
+                }
+                else{
+                    allDone = false;
+                }
+                var climbingStep = climbers[index]['history'][step];
+                var x = climbingStep['x'];
+                var y = climbingStep['y'];
+                var z = func(x,y);
+                xx.push(x);
+                yy.push(y);
+                zz.push(z);
             }
-        }];
-        Plotly.plot('chart', data, layout);
+            var data = [{
+                    	x: x,
+                    	y: y,
+                    	z: z,
+                    	mode: 'markers',
+                    	type: 'scatter3d',
+                    	marker: {
+                            color: 'rgb(255, 153, 0)',
+                    	    size: 10
+                        }
+                    }];
+            Plotly.plot('chart', data, layout);
+            historyStep += 1;
+        }
+
     }
 
     function setConnected(connected) {
         $("#connect").prop("disabled", connected);
         $("#disconnect").prop("disabled", !connected);
-        $('#from').prop('disabled', connected);
-        $('#text').prop('disabled', !connected);
         if (connected) {
-            $('#text').focus();
+            $('#noProcs').focus();
         }
     }
 
@@ -40,10 +69,7 @@ $(function() {
 	    e.preventDefault();
     });
 
-    $('#from').on('blur change keyup', function(ev) {
-	    $('#connect').prop('disabled', $(this).val().length == 0 );
-    });
-    $('#connect,#disconnect,#text').prop('disabled', true);
+    setConnected(false);
 
     $('#connect').click(function() {
         client = Stomp.over(new SockJS('/chat'));
@@ -64,12 +90,14 @@ $(function() {
     });
 
     $('#send').click(function() {
-        var topic = $('#topic').val();
-        client.send("/app/chat/" + topic, {}, JSON.stringify({
-            from: $("#from").val(),
-            text: $('#text').val(),
+        var noProcs = $('#noProcs').val();
+        var noClimbers = $('#noClimbers').val();
+        client.send("/app/chat/" + noProcs, {}, JSON.stringify({
+            noProcs: $("#noProcs").val(),
+            noClimbers: $('#noClimbers').val(),
         }));
-        $('#text').val("");
+        $('#noProcs').val("");
+        $('#noClimbers').val("");
     });
 
     function getData() {

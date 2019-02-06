@@ -22,14 +22,12 @@ import commands.StreamGobbler;
 @Controller
 public class ChatController 
 {
-    @MessageMapping("/chat/{topic}")
+    @MessageMapping("/chat/{noProcs}")
     @SendTo("/topic/messages")
-    public Result send(@DestinationVariable("topic") String topic,
-			      Message message) throws Exception
+    public Result send(@DestinationVariable("noProcs") Integer noProcs, Message message) throws Exception
     {
         Result result = new Result();
         try{
-            Integer noProcs = 3;
             String mpiexec = "D:\\Programs\\MPI\\Bin\\mpiexec ";
             String command = mpiexec +  "-n " + noProcs + " Geometrica.exe " + noProcs;
             Runtime rt = Runtime.getRuntime();
