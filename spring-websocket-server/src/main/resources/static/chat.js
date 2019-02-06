@@ -131,9 +131,9 @@ $(function() {
 
     function getData() {
     	var arr = [];
-    	for(let i = 0; i < 100; i++) {
+    	for(let i = 0; i < 20; i++) {
             var data = [];
-            for(let j = 0; j < 100; j++){
+            for(let j = 0; j < 20; j++){
                 data.push(func(i,j));
             }
             arr.push(data)
