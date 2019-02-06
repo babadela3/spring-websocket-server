@@ -80,6 +80,11 @@ $(function() {
         }
     }
 
+    function setStarted(started){
+        $("#send").prop("disabled", started);
+        $("#stop").prop("disabled", !started);
+    }
+
     function showStatus(){
         $('#parStatus').html("Parallel : " + parClimbing['duration']);
         $('#seqStatus').html("Sequential : " + seqClimbing['duration']);
@@ -112,6 +117,7 @@ $(function() {
     });
 
     $('#send').click(function() {
+        setStarted(true);
         var noProcs = $('#noProcs').val();
         var noClimbers = $('#noClimbers').val();
         client.send("/app/chat/" + noProcs, {}, JSON.stringify({
@@ -123,6 +129,7 @@ $(function() {
     });
 
     $('#stop').click(function(){
+        setStarted(false);
         clearInterval(plotting);
         climbers = null;
         historyStep = 0;
