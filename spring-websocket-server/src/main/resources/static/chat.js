@@ -2,58 +2,73 @@ $(function() {
     'use strict';
 
     var client;
+    var climbers;
+    var parClimbing;
+    var seqClimbing;
+    var historyStep = 0;
+    var allDone = false;
+    var plotting;
+    var colors = ['#ff0000', '#ffa07a', '#ffd700', '#00ff00',
+                '#00ff7f', '#808000', '#008080', '#00bfff',
+                '#000080', '#483d8b', '#ee82ee', '#4b0082'];
 
-    function showMessage(mesg) {
-        var parClimbing = mesg['parClimbing'];
-        var seqClimbing = mesg['seqClimbing'];
-        var climbers = parClimbing['climbers'];
-        var climbersCount = Object.keys(climbers).length;
-        console.log('Parralel : ' + parClimbing['duration'] + ' at ' + parClimbing['bestPoint']['x'] + '\n');
-        console.log('Sequential : ' + seqClimbing['duration'] + ' at ' + seqClimbing['bestPoint']['x'] + '\n');
+    function plotPoint(){
+        console.log("\nHistory step " + historyStep + " \n");
+        if(historyStep > 0){
+            Plotly.deleteTraces('chart',1);
+        }
         var xx = [];
         var yy = [];
         var zz = [];
-
-//        for(let index = 1; index <= climbersCount; ++index){
-//            var history = climbers[index]['history'];
-//            console.log("Climber : " + index + " has " + history.length + " steps\n");
-//        }
-        var historyStep = 0;
-        var allDone = false;
-        while(allDone == false){
-            allDone = true;
-            console.log("History step " + historyStep + " \n");
-            for(let index = 1; index <= climbersCount; ++index){
-                var history = climbers[index]['history'];
-                var step = historyStep;
-                if(historyStep >= history.length){
-                    step = history.length - 1;
-                }
-                else{
-                    allDone = false;
-                }
-                var climbingStep = climbers[index]['history'][step];
-                var x = climbingStep['x'];
-                var y = climbingStep['y'];
-                var z = func(x,y);
-                xx.push(x);
-                yy.push(y);
-                zz.push(z);
+        allDone = true;
+        var climbersCount = Object.keys(climbers).length;
+        for(let index = 1; index <= climbersCount; ++index){
+            var history = climbers[index]['history'];
+            var step = historyStep;
+            if(historyStep >= history.length){
+                step = history.length - 1;
             }
-            var data = [{
-                    	x: x,
-                    	y: y,
-                    	z: z,
-                    	mode: 'markers',
-                    	type: 'scatter3d',
-                    	marker: {
-                            color: 'rgb(255, 153, 0)',
-                    	    size: 10
-                        }
-                    }];
-            Plotly.plot('chart', data, layout);
-            historyStep += 1;
+            else{
+                allDone = false;
+            }
+            var climbingStep = climbers[index]['history'][step];
+            var x = climbingStep['x'];
+            var y = climbingStep['y'];
+            var z = func(x,y);
+            console.log("( " + x + " , " + y + "," + z + ") ");
+            xx.push(x);
+            yy.push(y);
+            zz.push(z);
         }
+        var data = [{
+                    x: xx,
+                    y: yy,
+                    z: zz,
+                    mode: 'markers',
+                    type: 'scatter3d',
+                    marker: {
+                        color: colors.slice(0,climbersCount),
+                        size: 10
+                    }
+                }];
+        Plotly.plot('chart', data, layout);
+        historyStep += 1;
+        if(allDone == true){
+            historyStep = 0;
+            clearInterval(plotting);
+        }
+    }
+
+    function showMessage(mesg) {
+        parClimbing = mesg['parClimbing'];
+        seqClimbing = mesg['seqClimbing'];
+        climbers = parClimbing['climbers'];
+        var climbersCount = Object.keys(climbers).length;
+        console.log('Parralel : ' + parClimbing['duration'] + ' at ' + parClimbing['bestPoint']['x'] + '\n');
+        console.log('Sequential : ' + seqClimbing['duration'] + ' at ' + seqClimbing['bestPoint']['x'] + '\n');
+        showStatus();
+        plotting = setInterval(plotPoint, 5);
+
 
     }
 
@@ -63,6 +78,13 @@ $(function() {
         if (connected) {
             $('#noProcs').focus();
         }
+    }
+
+    function showStatus(){
+        $('#parStatus').html("Parallel : " + parClimbing['duration']);
+        $('#seqStatus').html("Sequential : " + seqClimbing['duration']);
+        $('#bestPoint').html("Best Point : " + parClimbing['bestPoint']['score']
+                    + " at (" + parClimbing['bestPoint']['x'] + ", " + parClimbing['bestPoint']['y'] + ")");
     }
 
     $("form").on('submit', function (e) {
@@ -100,14 +122,21 @@ $(function() {
         $('#noClimbers').val("");
     });
 
+    $('#stop').click(function(){
+        clearInterval(plotting);
+        climbers = null;
+        historyStep = 0;
+        allDone = false;
+    });
+
     function getData() {
     	var arr = [];
-    	for(let i = 0; i < 20; i++) {
-        var data = [];
-    	for(let j = 0; j < 20; j++){
-    		data.push(func(i,j));
-    	}
-    	arr.push(data)
+    	for(let i = 0; i < 100; i++) {
+            var data = [];
+            for(let j = 0; j < 100; j++){
+                data.push(func(i,j));
+            }
+            arr.push(data)
     	}
     	return arr;
     }

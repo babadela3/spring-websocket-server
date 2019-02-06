@@ -13,39 +13,61 @@
 <body>
   <div id="main-content" class="container">
     <div class="row">
-      <div class="col-md-12 space-bottom10">
-        <form class="form-inline">
-          <button id="connect"
-		  class="btn btn-default"
-		  type="submit">Connect</button>
+        <div class="col-md-12 space-bottom10">
+            <form class="form-inline">
+              <button id="connect"
+              class="btn btn-default"
+              type="submit">Connect</button>
 
-          <button id="disconnect"
-		  class="btn btn-default"
-		  type="submit"
-		  disabled="disabled">Disconnect</button>
-	</form>
-      </div>
+              <button id="disconnect"
+              class="btn btn-default"
+              type="submit"
+              disabled="disabled">Disconnect</button>
+            </form>
+        </div>
+
     </div>
+      <div class="row space-bottom10">
+          <div class="col-md-4 space-bottom10">
+              <h2 id="parStatus">Parallel : 0</h2>
+          </div>
+
+
+        <div class="col-md-4 space-bottom10">
+
+              <h2 id="seqStatus">Sequential : 0</h2>
+        </div>
+          <div class="col-md-4 space-bottom10">
+              <h2 id="bestPoint">Best Point : - </h2>
+        </div>
+      </div>
     <div class="row space-bottom10">
       <form>
-	<div class="col-md-4">
+	<div class="col-md-3">
         <input type="text"
                id="noClimbers"
                class="form-control"
                placeholder="enter number of climbers ( >= 1) ...">
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-3">
 	  <input type="text"
 		 id="noProcs"
 		 class="form-control"
 		 placeholder="enter number of processes ( >= 2 ) ...">
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-3">
           <button id="send"
 		  class="btn btn-default"
 		  type="submit">Start</button>
 	</div>
       </form>
+        <form>
+            <div class="col-md-3">
+                <button id="stop"
+                        class="btn btn-danger"
+                        type="submit">Stop</button>
+            </div>
+        </form>
     </div>
     <div class="row">
       <div class="col-md-12">
