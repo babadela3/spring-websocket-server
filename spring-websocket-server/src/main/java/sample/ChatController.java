@@ -22,14 +22,16 @@ import commands.StreamGobbler;
 @Controller
 public class ChatController 
 {
-    @MessageMapping("/chat/{noProcs}")
+    @MessageMapping("/chat/{noProcs}/{noClimbers}")
     @SendTo("/topic/messages")
-    public Result send(@DestinationVariable("noProcs") Integer noProcs, Message message) throws Exception
+    public Result send(@DestinationVariable("noProcs") Integer noProcs, @DestinationVariable("noClimbers") Integer noClimbers, Message message) throws Exception
     {
         Result result = new Result();
         try{
+            System.out.println("No climbers : " + noClimbers);
+            System.out.println("No procs : " + noProcs);
             String mpiexec = "D:\\Programs\\MPI\\Bin\\mpiexec ";
-            String command = mpiexec +  "-n " + noProcs + " Geometrica.exe " + noProcs;
+            String command = mpiexec +  "-n " + (noProcs + 1)+ " Geometrica.exe " + noClimbers;
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec("cmd /c " + command );
 

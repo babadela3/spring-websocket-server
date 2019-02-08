@@ -45,6 +45,11 @@ public class StreamParser {
                         if(words[0].equals("FP")){
                             this.result.parClimbing.duration = Float.parseFloat(words[1]);
                         }
+                        else{
+                            if(words[0].equals("FOP")){
+                                this.result.oparClimbing.duration = Float.parseFloat(words[1]);
+                            }
+                        }
                     }
                 }
                 catch (NumberFormatException ex){
@@ -87,6 +92,11 @@ public class StreamParser {
                         if(words[0].equals("BP")){
                             this.result.parClimbing.bestPoint = status;
                         }
+                        else{
+                            if(words[0].equals("BOP")){
+                                this.result.oparClimbing.bestPoint = status;
+                            }
+                        }
                     }
                 }
                 catch (NumberFormatException ex){
@@ -94,7 +104,7 @@ public class StreamParser {
                 }
                 break;
             default:
-                System.out.println("\nFormat unkonw \n");
+                System.out.println("\nFormat unkown ! \n");
                 break;
         }
     }

@@ -5,6 +5,7 @@ $(function() {
     var climbers;
     var parClimbing;
     var seqClimbing;
+    var oparClimbing;
     var historyStep = 0;
     var allDone = false;
     var plotting;
@@ -14,9 +15,9 @@ $(function() {
 
     function plotPoint(){
         console.log("\nHistory step " + historyStep + " \n");
-        if(historyStep > 0){
-            Plotly.deleteTraces('chart',1);
-        }
+//        if(historyStep > 0){
+//            Plotly.deleteTraces('chart',1);
+//        }
         var xx = [];
         var yy = [];
         var zz = [];
@@ -35,7 +36,7 @@ $(function() {
             var x = climbingStep['x'];
             var y = climbingStep['y'];
             var z = func(x,y);
-            console.log("( " + x + " , " + y + "," + z + ") ");
+//            console.log("( " + x + " , " + y + "," + z + ") ");
             xx.push(x);
             yy.push(y);
             zz.push(z);
@@ -48,7 +49,7 @@ $(function() {
                     type: 'scatter3d',
                     marker: {
                         color: colors.slice(0,climbersCount),
-                        size: 10
+                        size: 7
                     }
                 }];
         Plotly.plot('chart', data, layout);
@@ -62,12 +63,13 @@ $(function() {
     function showMessage(mesg) {
         parClimbing = mesg['parClimbing'];
         seqClimbing = mesg['seqClimbing'];
+        oparClimbing = mesg['oparClimbing'];
         climbers = parClimbing['climbers'];
         var climbersCount = Object.keys(climbers).length;
         console.log('Parralel : ' + parClimbing['duration'] + ' at ' + parClimbing['bestPoint']['x'] + '\n');
         console.log('Sequential : ' + seqClimbing['duration'] + ' at ' + seqClimbing['bestPoint']['x'] + '\n');
         showStatus();
-        plotting = setInterval(plotPoint, 5);
+        plotting = setInterval(plotPoint, 1);
 
 
     }
@@ -76,7 +78,7 @@ $(function() {
         $("#connect").prop("disabled", connected);
         $("#disconnect").prop("disabled", !connected);
         if (connected) {
-            $('#noProcs').focus();
+            $('#noClimbers').focus();
         }
     }
 
@@ -86,11 +88,14 @@ $(function() {
     }
 
     function showStatus(){
-        $('#parStatus').html("Parallel : " + parClimbing['duration']);
         $('#seqStatus').html("Sequential : " + seqClimbing['duration']);
+        $('#parStatus').html("Parallel : " + parClimbing['duration']);
+        $('#oparStatus').html("Optimum Parallel : " + oparClimbing['duration']);
         $('#bestPoint').html("Best Point : " + parClimbing['bestPoint']['score']
                     + " at (" + parClimbing['bestPoint']['x'] + ", " + parClimbing['bestPoint']['y'] + ")");
     }
+
+
 
     $("form").on('submit', function (e) {
 	    e.preventDefault();
@@ -120,7 +125,7 @@ $(function() {
         setStarted(true);
         var noProcs = $('#noProcs').val();
         var noClimbers = $('#noClimbers').val();
-        client.send("/app/chat/" + noProcs, {}, JSON.stringify({
+        client.send("/app/chat/" + noProcs + "/" + noClimbers, {}, JSON.stringify({
             noProcs: $("#noProcs").val(),
             noClimbers: $('#noClimbers').val(),
         }));
@@ -136,12 +141,22 @@ $(function() {
         allDone = false;
     });
 
-    function getData() {
+    function makeArr(startValue, stopValue, cardinality) {
+        var arr = [];
+        var currValue = startValue;
+        var step = (stopValue - startValue) / (cardinality - 1);
+        for (var i = 0; i < cardinality; i++) {
+            arr.push(Math.round((currValue + (step * i)) * 100) / 100);
+        }
+        return arr;
+    }
+
+    function getData(xx,yy) {
     	var arr = [];
-    	for(let i = 0; i < 20; i++) {
+    	for(let i = 0; i < xx.length; i++) {
             var data = [];
-            for(let j = 0; j < 20; j++){
-                data.push(func(i,j));
+            for(let j = 0; j < yy.length; j++){
+                data.push(func(xx[i],yy[j]));
             }
             arr.push(data)
     	}
@@ -155,7 +170,9 @@ $(function() {
     		+ 550 * Math.cos(p + 0.2 * 3.1415);
     		return result;
     }
-    var data = getData();
+    var xx = makeArr(0,20,200);
+    var yy = makeArr(0,20,200);
+    var zz = getData(xx,yy);
     var layout = {
     	autosize: false,
     	width: 1000,
@@ -168,7 +185,9 @@ $(function() {
     };
 
     Plotly.newPlot('chart', [{
-    	z: data,
+        x : xx,
+        y : yy,
+        z : zz,
     	showscale: false,
     	type: 'surface'
     }], layout);
